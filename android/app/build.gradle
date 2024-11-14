@@ -1,17 +1,15 @@
 plugins {
     id "com.android.application"
-    // START: FlutterFire Configuration
-    id 'com.google.gms.google-services'
-    // END: FlutterFire Configuration
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    // Ajoutez ce plugin pour la configuration de Google Services
+    id "com.google.gms.google-services"
 }
 
 android {
-    namespace = "com.example.nomadnotes"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace = "com.example.carnet_de_voyage"
+    compileSdkVersion 34 // Assurez-vous d'avoir téléchargé le SDK 34
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -19,25 +17,37 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = "1.8"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.nomadnotes"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        applicationId "com.example.carnet_de_voyage"
+        minSdkVersion 23 // Version minimale de l'API (vous pouvez adapter selon vos besoins)
+        targetSdkVersion 34 // API cible
+        versionCode flutter.versionCode.toInteger() // Ajoutez .toInteger() pour s'assurer que la valeur est bien un entier
+        versionName flutter.versionName
+        multiDexEnabled true
+
+        manifestPlaceholders = [
+            applicationName: "CarnetDeVoyageApp"
+        ]
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.debug // Mettez à jour ce paramètre si vous utilisez une signature personnalisée pour les builds de production
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
         }
     }
 }
@@ -45,3 +55,19 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    // Ajoutez toutes les dépendances Firebase nécessaires
+    implementation platform('com.google.firebase:firebase-bom:32.2.0')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation project(':firebase_core')
+    implementation project(':cloud_firestore')
+    
+}
+
+// Ce plugin Google Services doit être appliqué automatiquement si vous utilisez "com.google.gms.google-services" dans les plugins
+apply plugin: 'com.google.gms.google-services'

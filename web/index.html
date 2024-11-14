@@ -1,38 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
 
+  <!-- Ajoutez ici l'ID client Google Sign-In -->
+  <meta name="google-signin-client_id" content="156623633534-767b2n229u4bosomkp9n2e996b8k3gn5.apps.googleusercontent.com" />
+
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="nomadnotes">
+  <meta name="apple-mobile-web-app-title" content="carnet_de_voyage">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>nomadnotes</title>
+  <title>carnet_de_voyage</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Ajout des SDK Firebase -->
+  <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-analytics.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script> 
+  <!-- Ajoute les autres SDK dont tu as besoin -->
+  
+  <!-- Ajout de la bibliothèque Google Sign-In -->
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  
+  <!-- Configuration Firebase -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Configuration de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyDWBQ0DwZxpzeSR9ZwM-InNb6dhn3E4xNo",
+        authDomain: "carnet-de-voyage-20c9a.firebaseapp.com",
+        projectId: "carnet-de-voyage-20c9a",
+        storageBucket: "carnet-de-voyage-20c9a.appspot.com",
+        messagingSenderId: "156623633534",
+        appId: "1:156623633534:web:2c41d045c952e12f062c2f",
+        measurementId: "G-XFHCB5JGH0"
+      };
+
+      // Initialisation de Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      if ('measurementId' in firebaseConfig) {
+        firebase.analytics();
+      }
+    });
+  </script>
 </body>
 </html>

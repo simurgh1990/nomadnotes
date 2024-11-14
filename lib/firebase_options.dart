@@ -73,8 +73,9 @@ class DefaultFirebaseOptions {
     projectId: 'carnet-de-voyage-20c9a',
     databaseURL: 'https://carnet-de-voyage-20c9a-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'carnet-de-voyage-20c9a.appspot.com',
-    androidClientId: '156623633534-ktmo9q3pi5ha5lhs3d4vd1okp38a2v9e.apps.googleusercontent.com',
+    androidClientId: '156623633534-0f0ugpqd9q19vg0mn2j4uc9u572r77lk.apps.googleusercontent.com',
     iosClientId: '156623633534-n35vlmu3df6hq17smlciv5av9546c3ok.apps.googleusercontent.com',
     iosBundleId: 'com.example.nomadnotes',
   );
+
 }
