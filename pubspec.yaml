@@ -1,0 +1,61 @@
+name: nomadnotes
+description: "A new Flutter project."
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  #go_router pour gestion des routes
+  go_router: ^14.2.7
+
+  # Dépendances Firebase (versions compatibles)
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1 
+  firebase_auth_platform_interface: ^7.4.7
+  firebase_auth_web: ^5.13.2
+  cloud_firestore: ^5.4.4
+  firebase_storage: ^12.3.2
+  flutter_secure_storage: ^9.2.2
+  google_sign_in: ^6.0.0
+  logger: ^2.4.0
+  image_picker: ^1.1.2
+  firebase_app_check: ^0.3.1+6
+ 
+
+  # Cupertino Icons
+  cupertino_icons: ^1.0.8
+
+  # SQLite pour la gestion des données locales
+  sqflite: ^2.2.0
+  path_provider: ^2.0.14
+  path: ^1.8.3 
+
+  # Google Maps pour l'affichage des cartes
+  google_maps_flutter: ^2.2.0
+
+  # Utilisation SVG
+  flutter_svg: ^2.0.0
+
+  #interopérabilités 
+  js: ^0.6.7
+  http: ^0.13.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/google_logo.png
+    - assets/logo_nomadnotes.png
+

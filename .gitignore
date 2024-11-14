@@ -1,0 +1,106 @@
+# Flutter specific
+.DS_Store
+.dart_tool/
+.build/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+*.iml
+*.hprof
+pubspec.lock
+
+# iOS build
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/engine/
+ios/Flutter/flutter_assets/
+ios/ServiceDefinitions.json
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.podspec.json
+**/ios/Flutter/Flutter.framework
+
+# Android build
+android/.gradle/
+android/.idea/
+android/key.properties
+android/local.properties
+android/app/google-services.json
+**/build/
+android/app/build/
+**/*.keystore
+
+# Exclude all build directories
+build/
+*/build/
+
+# Node.js specific
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.yarn-integrity
+
+# VSCode
+.vscode/
+
+# Firebase Admin SDK file
+firebaseAdmin/firebase-adminsdk-carnet_de_voyage.json
+
+# Logs
+*.log
+
+# Environment variables
+.env
+**/*.env
+
+# Exclude generated files
+**/PROJECT@v11_mod*
+**/TARGET@v11_hash*
+
+# Miscellaneous
+**/*.swp
+*.tmp
+*.bak
+*.old
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+/packages
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
