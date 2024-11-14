@@ -12,51 +12,48 @@ dependencies:
   flutter:
     sdk: flutter
 
-  #go_router pour gestion des routes
+  # Gestion des routes
   go_router: ^14.2.7
 
-  # Dépendances Firebase (versions compatibles)
+  # Dépendances Firebase
   firebase_core: ^3.6.0
-  firebase_auth: ^5.3.1 
-  firebase_auth_platform_interface: ^7.4.7
-  firebase_auth_web: ^5.13.2
+  firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
   firebase_storage: ^12.3.2
   flutter_secure_storage: ^9.2.2
   google_sign_in: ^6.0.0
   firebase_app_check: ^0.3.1+6
- 
+
+  # Logging
   logger: ^2.4.0
+
+  # Gestion des images
   image_picker: ^1.1.2
-  
+  image_cropper: ^8.0.2
+
   # Cupertino Icons
   cupertino_icons: ^1.0.8
 
   # SQLite pour la gestion des données locales
   sqflite: ^2.2.0
   path_provider: ^2.0.14
-  path: ^1.8.3 
+  path: ^1.8.3
 
-  # Google Maps pour l'affichage des cartes
+  # Google Maps
   google_maps_flutter: ^2.2.0
-  flutter_google_places: ^0.3.0
 
+  # HTTP pour les appels API
   http: ^1.2.2
 
   # Utilisation SVG
   flutter_svg: ^2.0.0
 
-  #interopérabilités 
+  # Interopérabilité JavaScript (si nécessaire)
   js: ^0.6.7
-
-
-  #recadrage image 
-  image_cropper: ^8.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
 
 flutter:
@@ -64,4 +61,3 @@ flutter:
   assets:
     - assets/google_logo.png
     - assets/logo_nomadnotes.png
-
