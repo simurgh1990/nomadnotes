@@ -196,60 +196,63 @@ class ProfilScreenState extends State<ProfilScreen> {
         ),
         centerTitle: true,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2196F3), Color(0xFF6EC6FF)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF2196F3), Color(0xFF6EC6FF)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height, // Prend toute la hauteur de l'écran
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_error != null) ...[
+                    Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  CircleAvatar(
+                    radius: screenWidth < 600 ? 50 : 80,
+                    backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
+                        ? NetworkImage(_imageUrl!)
+                        : null,
+                    child: _imageUrl == null
+                        ? const Icon(Icons.person, size: 50)
+                        : null,
+                  ),
+                  const SizedBox(height: 20),
+                  IconButton(
+                    icon: const Icon(Icons.camera_alt),
+                    onPressed: _uploadProfileImage,
+                    tooltip: 'Changer l\'image de profil',
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Nom'),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _bioController,
+                    decoration: const InputDecoration(labelText: 'Bio'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _updateUserProfile,
+                    child: const Text("Mettre à jour le profil"),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_error != null) ...[
-                Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red, fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-              ],
-              CircleAvatar(
-                radius: screenWidth < 600 ? 50 : 80,
-                backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
-                    ? NetworkImage(_imageUrl!)
-                    : null,
-                child: _imageUrl == null
-                    ? const Icon(Icons.person, size: 50)
-                    : null,
-              ),
-              const SizedBox(height: 20),
-              IconButton(
-                icon: const Icon(Icons.camera_alt),
-                onPressed: _uploadProfileImage,
-                tooltip: 'Changer l\'image de profil',
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nom'),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _bioController,
-                decoration: const InputDecoration(labelText: 'Bio'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _updateUserProfile,
-                child: const Text("Mettre à jour le profil"),
-              ),
-            ],
-          ),
-        ),
-      ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 3),
     );
   }
