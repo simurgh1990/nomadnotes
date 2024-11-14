@@ -5,10 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import '/../../services/search_place_api';
+import 'package:nomadnotes/services/search_place_api.dart';
+import 'package:nomadnotes/services/bottom_nav_bar.dart';
 import 'step_trip_screen.dart';
 
-const String googleApiKey = "AIzaSyAoENo1a6tHw4jGFe5YIkaxdUo6mSZJYDA"; // Remplacez par votre clé d'API Google
+
+const String googleApiKey = "AIzaSyAoENo1a6tHw4jGFe5YIkaxdUo6mSZJYDA";
 
 class TripDetailScreen extends StatefulWidget {
   final String tripId;
@@ -28,10 +30,6 @@ class TripDetailScreenState extends State<TripDetailScreen> {
 
   LatLng? _selectedLocation; // Coordonnées pour la carte
   GoogleMapController? _mapController;
-
-  // GlobalKey pour accéder à ScaffoldMessenger sans utiliser le BuildContext
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
@@ -61,6 +59,7 @@ class TripDetailScreenState extends State<TripDetailScreen> {
 
     if (docSnapshot.exists) {
       final data = docSnapshot.data()!;
+      if (!mounted) return; // Vérification si le widget est toujours monté
       setState(() {
         _titleController.text = data['titre'] ?? '';
         _dateController.text = data['date'] ?? '';
@@ -105,12 +104,61 @@ class TripDetailScreenState extends State<TripDetailScreen> {
         .doc(widget.tripId)
         .update(tripData);
 
-    _scaffoldMessengerKey.currentState?.showSnackBar(
+    if (!mounted) return; // Vérification si le widget est toujours monté
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Voyage mis à jour avec succès')),
     );
   }
 
-  // Permet de recadrer l'image principale pour la cartouche
+  // Recherche un lieu et met à jour les coordonnées
+  Future<void> _searchPlace() async {
+    final query = _locationController.text;
+    if (query.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez saisir un lieu à rechercher.')),
+      );
+      return;
+    }
+
+    try {
+      final suggestions = await fetchPlaceSuggestions(query);
+
+      if (suggestions.isNotEmpty) {
+        final selectedPlace = suggestions.first;
+        final coordinates = await fetchPlaceCoordinates(selectedPlace['placeId']);
+
+        if (coordinates != null) {
+          if (!mounted) return;
+          setState(() {
+            _selectedLocation = coordinates;
+            _locationController.text = selectedPlace['description'];
+          });
+
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(coordinates, 14),
+          );
+        } else {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Impossible de récupérer les coordonnées du lieu.')),
+          );
+        }
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Aucun lieu trouvé.')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la recherche : $e')),
+      );
+    }
+  }
+
+  // Fonction pour recadrer l'image principale
   Future<void> _cropImage() async {
     if (_mainPhotoUrl == null) return;
 
@@ -132,13 +180,11 @@ class TripDetailScreenState extends State<TripDetailScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Télécharge l'image recadrée dans Firebase Storage
       final uploadTask = await FirebaseStorage.instance
           .ref('cropped_cartouche_images/${widget.tripId}.jpg')
           .putFile(File(croppedFile.path));
       final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-      // Met à jour Firestore avec l'URL de l'image recadrée
       await FirebaseFirestore.instance
           .collection('Users')
           .doc(user.uid)
@@ -146,45 +192,9 @@ class TripDetailScreenState extends State<TripDetailScreen> {
           .doc(widget.tripId)
           .update({'cartouche_photo': downloadUrl});
 
-      _scaffoldMessengerKey.currentState?.showSnackBar(
+      if (!mounted) return; // Vérification si le widget est toujours monté
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Image recadrée mise à jour !')),
-      );
-    }
-  }
-
-  // Recherche un lieu et met à jour les coordonnées
-  Future<void> _searchPlace(BuildContext context) async {
-    final query = _locationController.text;
-    if (query.isEmpty) {
-      _scaffoldMessengerKey.currentState?.showSnackBar(
-        const SnackBar(content: Text('Veuillez saisir un lieu à rechercher.')),
-      );
-      return;
-    }
-
-    try {
-      final suggestions = await fetchPlaceSuggestions(query);
-      if (suggestions.isNotEmpty) {
-        final selectedPlace = suggestions.first;
-        final coordinates =
-            await fetchPlaceCoordinates(selectedPlace['placeId']);
-
-        setState(() {
-          _selectedLocation = coordinates;
-          _locationController.text = selectedPlace['description'];
-        });
-
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(coordinates!, 14),
-        );
-      } else {
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          const SnackBar(content: Text('Aucun lieu trouvé.')),
-        );
-      }
-    } catch (e) {
-      _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(content: Text('Erreur lors de la recherche de lieu : $e')),
       );
     }
   }
@@ -192,14 +202,12 @@ class TripDetailScreenState extends State<TripDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldMessengerKey, // Associer le Scaffold au ScaffoldMessenger
       appBar: AppBar(
         title: const Text('Détails du voyage'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _saveTripDetails,
-            tooltip: 'Sauvegarder',
           ),
         ],
       ),
@@ -225,7 +233,7 @@ class TripDetailScreenState extends State<TripDetailScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () => _searchPlace(context),
+                  onPressed: _searchPlace,
                 ),
               ],
             ),
@@ -271,6 +279,7 @@ class TripDetailScreenState extends State<TripDetailScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
     );
   }
 }
