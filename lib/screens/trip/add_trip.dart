@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nomadnotes/services/bottom_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nomadnotes/services/bottom_nav_bar.dart';
 
 class CreateTravelJournalScreen extends StatefulWidget {
   const CreateTravelJournalScreen({super.key});
@@ -19,10 +19,17 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-
   String? _mainPhotoUrl; // URL de la photo principale
 
   Future<void> _saveTravelJournal() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vous devez être connecté pour ajouter un voyage.")),
+      );
+      return;
+    }
+
     final travelData = {
       'titre': _titleController.text,
       'date': _dateController.text,
@@ -33,18 +40,23 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
     };
 
     try {
-      await FirebaseFirestore.instance.collection('voyages').add(travelData);
-      
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid)
+          .collection('Voyages')
+          .add(travelData);
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Carnet de voyage enregistré !'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Carnet de voyage enregistré !')),
+        );
+        Navigator.pop(context); // Retour à l'écran précédent
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Erreur lors de l\'enregistrement : $e'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'enregistrement : $e')),
+        );
       }
     }
   }
@@ -71,20 +83,6 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
     }
   }
 
-  Future<void> _selectLocationOnMap() async {
-    final LatLng? selectedLocation = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SelectLocationScreen(),
-      ),
-    );
-    if (selectedLocation != null) {
-      setState(() {
-        _locationController.text = '${selectedLocation.latitude}, ${selectedLocation.longitude}';
-      });
-    }
-  }
-
   @override
   void dispose() {
     _titleController.dispose();
@@ -100,7 +98,7 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
         title: const Text('Nouveau Carnet de Voyage'),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment(0.71, -0.71),
             end: Alignment(-0.71, 0.71),
@@ -125,7 +123,7 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
                   const SizedBox(height: 20),
                   TextField(
                     controller: _titleController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Titre du Carnet',
                       fillColor: Colors.white,
                       filled: true,
@@ -135,7 +133,7 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
                   const SizedBox(height: 20),
                   TextField(
                     controller: _dateController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Date du Voyage (AAAA-MM)',
                       fillColor: Colors.white,
                       filled: true,
@@ -157,26 +155,14 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _locationController,
-                          decoration: InputDecoration(
-                            labelText: 'Lieu du Voyage',
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(),
-                          ),
-                          readOnly: true,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.map),
-                        onPressed: _selectLocationOnMap,
-                        tooltip: 'Sélectionner le lieu sur la carte',
-                      ),
-                    ],
+                  TextField(
+                    controller: _locationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Lieu du Voyage',
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -188,7 +174,7 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
                             isPinned = value;
                           });
                         },
-                        activeColor: Color(0xFF4CAF50),
+                        activeColor: const Color(0xFF4CAF50),
                         inactiveThumbColor: Colors.grey,
                         activeTrackColor: Colors.white,
                         inactiveTrackColor: Colors.white,
@@ -204,9 +190,9 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
                     onPressed: _saveTravelJournal,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      minimumSize: Size(200, 50),
+                      minimumSize: const Size(200, 50),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Enregistrer',
                       style: TextStyle(color: Color(0xFF2196F3)),
                     ),
@@ -218,51 +204,6 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
         ),
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),
-    );
-  }
-}
-
-class SelectLocationScreen extends StatefulWidget {
-  const SelectLocationScreen({super.key});
-
-  @override
-  SelectLocationScreenState createState() => SelectLocationScreenState();
-}
-
-class SelectLocationScreenState extends State<SelectLocationScreen> {
-  LatLng? _selectedLocation;
-
-  void _onMapTap(LatLng position) {
-    setState(() {
-      _selectedLocation = position;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Sélectionnez un lieu"),
-        actions: [
-          if (_selectedLocation != null)
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {
-                Navigator.pop(context, _selectedLocation);
-              },
-            )
-        ],
-      ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(48.8566, 2.3522),
-          zoom: 10,
-        ),
-        onTap: _onMapTap,
-        markers: _selectedLocation != null
-            ? {Marker(markerId: MarkerId('selected'), position: _selectedLocation!)}
-            : {},
-      ),
     );
   }
 }

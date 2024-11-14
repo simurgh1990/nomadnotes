@@ -163,7 +163,7 @@ class LoginScreenState extends State<LoginScreen> {
                     children: [
                       // Logo
                       Image.asset(
-                        'assets/logo_nomadnotes.png',
+                        'logo_nomadnotes.png',
                         width: 300,
                         height: 239,
                         fit: BoxFit.contain,
@@ -239,7 +239,7 @@ class LoginScreenState extends State<LoginScreen> {
                       ElevatedButton.icon(
                         onPressed: _signInWithGoogle,
                         icon: Image.asset(
-                          'assets/google_logo.png',
+                          'google_logo.png',
                           height: 24,
                         ),
                         label: const Text(

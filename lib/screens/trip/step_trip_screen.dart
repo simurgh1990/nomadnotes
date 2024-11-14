@@ -4,19 +4,19 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StepTripScreen extends StatefulWidget {
   final String tripId;
 
   const StepTripScreen({super.key, required this.tripId});
 
-
   @override
   StepTripScreenState createState() => StepTripScreenState();
 }
 
 class StepTripScreenState extends State<StepTripScreen> {
-  List<Map<String, dynamic>> _steps = []; // Liste des étapes
+  List<Map<String, dynamic>> _steps = [];
 
   @override
   void initState() {
@@ -25,10 +25,15 @@ class StepTripScreenState extends State<StepTripScreen> {
   }
 
   Future<void> _loadSteps() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     final querySnapshot = await FirebaseFirestore.instance
-        .collection('voyages')
+        .collection('Users')
+        .doc(user.uid)
+        .collection('Voyages')
         .doc(widget.tripId)
-        .collection('etapes')
+        .collection('Etapes')
         .get();
 
     setState(() {
@@ -107,7 +112,10 @@ class StepTripScreenState extends State<StepTripScreen> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
-                    Navigator.of(context).pop(); // Ferme le dialogue
+                    Navigator.of(context).pop();
+
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user == null) return;
 
                     final stepData = {
                       'nom_etape': stepNameController.text,
@@ -117,22 +125,24 @@ class StepTripScreenState extends State<StepTripScreen> {
                       'photos': [],
                     };
 
-                    await FirebaseFirestore.instance
-                        .collection('voyages')
+                    final stepDoc = await FirebaseFirestore.instance
+                        .collection('Users')
+                        .doc(user.uid)
+                        .collection('Voyages')
                         .doc(widget.tripId)
-                        .collection('etapes')
-                        .add(stepData)
-                        .then((docRef) async {
-                      if (selectedImage != null) {
-                        final String photoUrl = await _uploadStepPhoto(selectedImage!);
-                        if (photoUrl.isNotEmpty) {
-                          await docRef.update({
-                            'photos': FieldValue.arrayUnion([photoUrl]),
-                          });
-                        }
+                        .collection('Etapes')
+                        .add(stepData);
+
+                    if (selectedImage != null) {
+                      final String photoUrl = await _uploadStepPhoto(selectedImage!);
+                      if (photoUrl.isNotEmpty) {
+                        await stepDoc.update({
+                          'photos': FieldValue.arrayUnion([photoUrl]),
+                        });
                       }
-                      _loadSteps(); // Rafraîchit la liste des étapes
-                    });
+                    }
+
+                    _loadSteps();
                   },
                   child: const Text('Ajouter'),
                 ),

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:nomadnotes/services/bottom_nav_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'step_trip_screen.dart';
 
 class TripDetailScreen extends StatefulWidget {
@@ -30,8 +26,13 @@ class TripDetailScreenState extends State<TripDetailScreen> {
   }
 
   Future<void> _loadTripDetails() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     final docSnapshot = await FirebaseFirestore.instance
-        .collection('voyages')
+        .collection('Users')
+        .doc(user.uid)
+        .collection('Voyages')
         .doc(widget.tripId)
         .get();
 
@@ -48,6 +49,9 @@ class TripDetailScreenState extends State<TripDetailScreen> {
   }
 
   Future<void> _saveTripDetails() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     final tripData = {
       'titre': _titleController.text,
       'date': _dateController.text,
@@ -57,7 +61,9 @@ class TripDetailScreenState extends State<TripDetailScreen> {
     };
 
     await FirebaseFirestore.instance
-        .collection('voyages')
+        .collection('Users')
+        .doc(user.uid)
+        .collection('Voyages')
         .doc(widget.tripId)
         .update(tripData);
 
@@ -66,27 +72,6 @@ class TripDetailScreenState extends State<TripDetailScreen> {
         const SnackBar(content: Text('Voyage mis à jour avec succès')),
       );
     }
-  }
-
-  Future<String> _uploadMainPhoto() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      TaskSnapshot uploadTask;
-      if (kIsWeb) {
-        final imageBytes = await pickedFile.readAsBytes();
-        uploadTask = await FirebaseStorage.instance
-            .ref('voyage_images/${DateTime.now()}.jpg')
-            .putData(imageBytes);
-      } else {
-        final imageFile = File(pickedFile.path);
-        uploadTask = await FirebaseStorage.instance
-            .ref('voyage_images/${DateTime.now()}.jpg')
-            .putFile(imageFile);
-      }
-      return await uploadTask.ref.getDownloadURL();
-    }
-    return '';
   }
 
   @override
@@ -107,65 +92,16 @@ class TripDetailScreenState extends State<TripDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Titre du voyage',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                hintText: 'Entrez le titre du voyage',
-              ),
-            ),
+            const Text('Titre du voyage', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(controller: _titleController),
             const SizedBox(height: 20),
-            const Text(
-              'Date du voyage',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _dateController,
-              decoration: const InputDecoration(
-                hintText: 'Entrez la date (AAAA-MM)',
-              ),
-            ),
+            const Text('Date du voyage', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(controller: _dateController),
             const SizedBox(height: 20),
-            const Text(
-              'Lieu du voyage',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _locationController,
-              decoration: const InputDecoration(
-                hintText: 'Entrez le lieu',
-              ),
-            ),
+            const Text('Lieu du voyage', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(controller: _locationController),
             const SizedBox(height: 20),
-            const Text(
-              'Photo principale',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            if (_mainPhotoUrl != null)
-              Image.network(
-                _mainPhotoUrl!,
-                height: 200,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.broken_image, size: 50);
-                },
-              ),
-            IconButton(
-              icon: const Icon(Icons.camera_alt),
-              onPressed: () async {
-                final photoUrl = await _uploadMainPhoto();
-                if (photoUrl.isNotEmpty && mounted) {
-                  setState(() {
-                    _mainPhotoUrl = photoUrl;
-                  });
-                }
-              },
-              tooltip: 'Changer la photo principale',
-            ),
-            const SizedBox(height: 20),
+            if (_mainPhotoUrl != null) Image.network(_mainPhotoUrl!),
             Row(
               children: [
                 Switch(
@@ -180,16 +116,10 @@ class TripDetailScreenState extends State<TripDetailScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveTripDetails,
-              child: const Text('Enregistrer les modifications'),
-            ),
-            const SizedBox(height: 20),
-            StepTripScreen(tripId: widget.tripId), // Intègre l'écran des étapes
+            StepTripScreen(tripId: widget.tripId),
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
     );
   }
 }
