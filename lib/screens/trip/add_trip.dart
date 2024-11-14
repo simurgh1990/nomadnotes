@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nomadnotes/services/bottom_nav_bar.dart';
+import 'package:go_router/go_router.dart';
 
 class CreateTravelJournalScreen extends StatefulWidget {
   const CreateTravelJournalScreen({super.key});
@@ -23,13 +24,18 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
 
   Future<void> _saveTravelJournal() async {
     final user = FirebaseAuth.instance.currentUser;
+
+    // Vérification de connexion utilisateur
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vous devez être connecté pour ajouter un voyage.")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Vous devez être connecté pour ajouter un voyage.")),
+        );
+      }
       return;
     }
 
+    // Données à sauvegarder
     final travelData = {
       'titre': _titleController.text,
       'date': _dateController.text,
@@ -40,19 +46,24 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
     };
 
     try {
+      // Ajout des données à Firestore
       await FirebaseFirestore.instance
           .collection('Users')
           .doc(user.uid)
           .collection('Voyages')
           .add(travelData);
 
+      // Message de succès
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Carnet de voyage enregistré !')),
         );
-        Navigator.pop(context); // Retour à l'écran précédent
+
+        // Utilisation de GoRouter pour revenir à la page précédente
+        context.go('/');
       }
     } catch (e) {
+      // Gestion des erreurs
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur lors de l\'enregistrement : $e')),
@@ -63,23 +74,34 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
 
   Future<void> _uploadMainPhoto() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      TaskSnapshot uploadTask;
-      if (kIsWeb) {
-        final imageBytes = await pickedFile.readAsBytes();
-        uploadTask = await FirebaseStorage.instance
-            .ref('voyage_images/${DateTime.now()}.jpg')
-            .putData(imageBytes);
-      } else {
-        final imageFile = File(pickedFile.path);
-        uploadTask = await FirebaseStorage.instance
-            .ref('voyage_images/${DateTime.now()}.jpg')
-            .putFile(imageFile);
+      try {
+        TaskSnapshot uploadTask;
+        if (kIsWeb) {
+          final imageBytes = await pickedFile.readAsBytes();
+          uploadTask = await FirebaseStorage.instance
+              .ref('voyage_images/${DateTime.now()}.jpg')
+              .putData(imageBytes);
+        } else {
+          final imageFile = File(pickedFile.path);
+          uploadTask = await FirebaseStorage.instance
+              .ref('voyage_images/${DateTime.now()}.jpg')
+              .putFile(imageFile);
+        }
+        final downloadUrl = await uploadTask.ref.getDownloadURL();
+        if (mounted) {
+          setState(() {
+            _mainPhotoUrl = downloadUrl;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur lors de l\'upload de la photo : $e')),
+          );
+        }
       }
-      String downloadUrl = await uploadTask.ref.getDownloadURL();
-      setState(() {
-        _mainPhotoUrl = downloadUrl;
-      });
     }
   }
 
@@ -114,10 +136,10 @@ class CreateTravelJournalScreenState extends State<CreateTravelJournalScreen> {
                 children: [
                   Text(
                     'Créer un Nouveau Carnet de Voyage',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: const Color.fromARGB(255, 77, 55, 55),
+                      color: Color.fromARGB(255, 77, 55, 55),
                     ),
                   ),
                   const SizedBox(height: 20),

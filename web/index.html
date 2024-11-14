@@ -26,4 +26,38 @@
   <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-analytics.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestor
+  <script defer src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script> 
+  <!-- Ajoute les autres SDK dont tu as besoin -->
+  
+  <!-- Ajout de la bibliothèque Google Sign-In -->
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+  <!-- Ajout de l'API Google Maps avec la clé API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAoENo1a6tHw4jGFe5YIkaxdUo6mSZJYDA"></script>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+  
+  <!-- Configuration Firebase -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Configuration de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyDWBQ0DwZxpzeSR9ZwM-InNb6dhn3E4xNo",
+        authDomain: "carnet-de-voyage-20c9a.firebaseapp.com",
+        projectId: "carnet-de-voyage-20c9a",
+        storageBucket: "carnet-de-voyage-20c9a.appspot.com",
+        messagingSenderId: "156623633534",
+        appId: "1:156623633534:web:2c41d045c952e12f062c2f",
+        measurementId: "G-XFHCB5JGH0"
+      };
+
+      // Initialisation de Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      if ('measurementId' in firebaseConfig) {
+        firebase.analytics();
+      }
+    });
+  </script>
+</body>
+</html>
