@@ -7,6 +7,8 @@ import 'package:logger/logger.dart';
 import 'package:firebase_app_check/firebase_app_check.dart'; // Correct package
 import 'package:permission_handler/permission_handler.dart'; // Ajout pour la gestion des permissions
 import 'firebase_options.dart';
+import 'dart:io' show Platform;
+
 
 // Import des pages
 import 'screens/home_screen.dart';
@@ -53,14 +55,18 @@ void main() async {
 
 // Gestion des permissions pour la localisation
 Future<void> _requestLocationPermission() async {
-  var status = await Permission.location.request();
-  if (status.isGranted) {
-    logger.i("Permission accordée !");
-  } else if (status.isDenied) {
-    logger.i("Permission refusée.");
-  } else if (status.isPermanentlyDenied) {
-    logger.i("Permission refusée de manière permanente. Ouvrez les paramètres pour l'autoriser.");
-    await openAppSettings(); // Ouvre les paramètres si l'utilisateur refuse en permanence
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      logger.i("Permission accordée !");
+    } else if (status.isDenied) {
+      logger.i("Permission refusée.");
+    } else if (status.isPermanentlyDenied) {
+      logger.i("Permission refusée de manière permanente. Ouvrez les paramètres pour l'autoriser.");
+      await openAppSettings();
+    }
+  } else {
+    logger.i("Les permissions de localisation ne sont pas nécessaires pour le web.");
   }
 }
 
