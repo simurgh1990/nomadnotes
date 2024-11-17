@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 import 'package:firebase_app_check/firebase_app_check.dart'; // Correct package
+import 'package:permission_handler/permission_handler.dart'; // Ajout pour la gestion des permissions
 import 'firebase_options.dart';
 
 // Import des pages
@@ -16,8 +18,11 @@ import 'screens/auth/login.dart';
 import 'screens/auth/register.dart';
 import 'screens/map_screen.dart';
 
+final Logger logger = Logger();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+ 
 
   // Initialisation de Firebase
   await Firebase.initializeApp(
@@ -37,10 +42,26 @@ void main() async {
   if (kIsWeb) {
     await FirebaseAppCheck.instance.activate(
       webProvider: ReCaptchaV3Provider('6Ldipn0qAAAAAIA64UGrh8U2WhT2VkNLGHrtkgkl'),
-      );
+    );
   }
 
+  // Demander les permissions pour la localisation avant de lancer l'application
+  await _requestLocationPermission();
+
   runApp(const NomadNotes());
+}
+
+// Gestion des permissions pour la localisation
+Future<void> _requestLocationPermission() async {
+  var status = await Permission.location.request();
+  if (status.isGranted) {
+    logger.i("Permission accordée !");
+  } else if (status.isDenied) {
+    logger.i("Permission refusée.");
+  } else if (status.isPermanentlyDenied) {
+    logger.i("Permission refusée de manière permanente. Ouvrez les paramètres pour l'autoriser.");
+    await openAppSettings(); // Ouvre les paramètres si l'utilisateur refuse en permanence
+  }
 }
 
 class NomadNotes extends StatelessWidget {
