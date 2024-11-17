@@ -1,67 +1,44 @@
 plugins {
-    id 'com.android.application'
-    id 'com.google.gms.google-services' // Obligatoire pour Firebase
-    id 'kotlin-android' // Si vous utilisez Kotlin
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    namespace 'com.example.carnet_de_voyage'
-    compileSdkVersion 34 // Remplacez par la dernière version supportée
+    namespace = "com.example.carnet_de_voyage"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
-        applicationId "com.example.carnet_de_voyage"
-        minSdkVersion 34 // Vérifiez que votre version Flutter supporte cette valeur
-        targetSdkVersion 34 // Correspond à compileSdkVersion
-        versionCode 1
-        versionName "1.0"
-
-        // Obligatoire pour éviter les erreurs avec Kotlin
-        multiDexEnabled true
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId = "com.example.carnet_de_voyage"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = 23
+        targetSdk = 34
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17 // Assurez-vous que cela correspond à votre configuration
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = '17' // Compatible avec Java 17
-    }
-
-    // Empêcher les erreurs de duplication
-    packagingOptions {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.debug
         }
     }
 }
 
-dependencies {
-    implementation platform('com.google.firebase:firebase-bom:33.5.1') // Firebase BOM
-
-    // Flutter et AndroidX
-    implementation "androidx.core:core-ktx:1.10.1"
-    implementation "androidx.appcompat:appcompat:1.6.1"
-
-    // Firebase
-    implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.google.firebase:firebase-firestore-ktx'
-    implementation 'com.google.firebase:firebase-storage-ktx'
-
-    // Google Maps et localisation
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    implementation 'com.google.android.gms:play-services-location:21.0.1'
-
-    // Kotlin et outils supplémentaires
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
-
-    // Multidex pour supporter plus de 65k méthodes
-    implementation 'androidx.multidex:multidex:2.0.1'
+flutter {
+    source = "../.."
 }
