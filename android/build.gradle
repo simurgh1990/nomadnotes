@@ -1,15 +1,28 @@
+// Bloc buildscript DOIT être en premier dans le fichier
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
+        // Dépendance pour le build Android
         classpath 'com.android.tools.build:gradle:8.1.0'
-        classpath 'com.google.gms:google-services:4.3.14'
+        // Dépendance pour les services Google (Firebase et Maps)
+        classpath 'com.google.gms:google-services:4.3.15'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10"
 
+        // Si vous utilisez Crashlytics ou Performance Monitoring, ajoutez la ligne ci-dessous :
+        // classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
     }
 }
 
+// Le bloc plugins peut être ajouté ici si nécessaire
+plugins {
+    // Gradle moderne utilise des plugins ici. Par exemple :
+    // id 'com.android.application' version '8.1.0' apply false
+}
+
+// Configuration des dépôts pour tous les projets
 allprojects {
     repositories {
         google()
@@ -17,14 +30,14 @@ allprojects {
     }
 }
 
+// Répertoire de construction personnalisé pour tous les sous-projets
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Tâche pour nettoyer le projet
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

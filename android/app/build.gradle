@@ -1,73 +1,67 @@
 plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id "dev.flutter.flutter-gradle-plugin"
-    // Ajoutez ce plugin pour la configuration de Google Services
-    id "com.google.gms.google-services"
+    id 'com.android.application'
+    id 'com.google.gms.google-services' // Obligatoire pour Firebase
+    id 'kotlin-android' // Si vous utilisez Kotlin
 }
 
 android {
-    namespace = "com.example.carnet_de_voyage"
-    compileSdkVersion 34 // Assurez-vous d'avoir téléchargé le SDK 34
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+    namespace 'com.example.carnet_de_voyage'
+    compileSdkVersion 34 // Remplacez par la dernière version supportée
 
     defaultConfig {
         applicationId "com.example.carnet_de_voyage"
-        minSdkVersion 23 // Version minimale de l'API (vous pouvez adapter selon vos besoins)
-        targetSdkVersion 34 // API cible
-        versionCode flutter.versionCode.toInteger() // Ajoutez .toInteger() pour s'assurer que la valeur est bien un entier
-        versionName flutter.versionName
-        multiDexEnabled true
+        minSdkVersion 34 // Vérifiez que votre version Flutter supporte cette valeur
+        targetSdkVersion 34 // Correspond à compileSdkVersion
+        versionCode 1
+        versionName "1.0"
 
-        manifestPlaceholders = [
-            applicationName: "CarnetDeVoyageApp"
-        ]
+        // Obligatoire pour éviter les erreurs avec Kotlin
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug // Mettez à jour ce paramètre si vous utilisez une signature personnalisée pour les builds de production
             minifyEnabled false
-            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    sourceSets {
-        main {
-            manifest.srcFile 'src/main/AndroidManifest.xml'
-            java.srcDirs = ['src/main/java']
-            res.srcDirs = ['src/main/res']
-            assets.srcDirs = ['src/main/assets']
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17 // Assurez-vous que cela correspond à votre configuration
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17' // Compatible avec Java 17
+    }
+
+    // Empêcher les erreurs de duplication
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
 }
 
-flutter {
-    source = "../.."
-}
-
 dependencies {
-    implementation 'com.google.android.gms:play-services-auth:20.4.1'
-    implementation 'androidx.multidex:multidex:2.0.1'
-    // Ajoutez toutes les dépendances Firebase nécessaires
-    implementation platform('com.google.firebase:firebase-bom:32.2.0')
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.firebase:firebase-storage'
-    implementation project(':firebase_core')
-    implementation project(':cloud_firestore')
-    
-}
+    implementation platform('com.google.firebase:firebase-bom:33.5.1') // Firebase BOM
 
-// Ce plugin Google Services doit être appliqué automatiquement si vous utilisez "com.google.gms.google-services" dans les plugins
-apply plugin: 'com.google.gms.google-services'
+    // Flutter et AndroidX
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+
+    // Firebase
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
+
+    // Google Maps et localisation
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    // Kotlin et outils supplémentaires
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
+
+    // Multidex pour supporter plus de 65k méthodes
+    implementation 'androidx.multidex:multidex:2.0.1'
+}
